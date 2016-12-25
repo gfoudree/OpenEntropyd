@@ -1,3 +1,11 @@
+# Binaries
+openentropyd
+
+# Certs
+*.key
+*.pem
+*.crt
+
 # Compiled Object files
 *.slo
 *.lo
