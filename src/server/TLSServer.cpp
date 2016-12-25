@@ -1,7 +1,12 @@
 #include "TLSServer.h"
 
 TLSServer::~TLSServer() {
-  ERR_free_strings(); //Cleanup OpenSSL
+  std::cout <<"Exiting";
+
+  close(serverSock);
+  EC_KEY_free(ecdh);
+  SSL_CTX_free(ctx); //Cleanup openSSL
+  ERR_free_strings();
   EVP_cleanup();
 }
 
@@ -74,7 +79,7 @@ void TLSServer::init() {
       close(serverSock);
       throw "Error listening";
   }
-  while (1)
+  while (!sig_int)
   {
       SSL *ssl;
       int hClientSock = 0;
@@ -90,24 +95,34 @@ void TLSServer::init() {
       {
           std::cerr << "Error on accept\n";
           close(hClientSock);
+          continue; //Stop executing and go to next loop iteration
       }
 
       ssl = SSL_new(ctx);
       if (ssl == NULL){
           ERR_print_errors_fp(stderr);
-          throw "Error creating new SSL";
+          std::cerr << "Error creating new SSL\n";
+          close(hClientSock);
+          continue;
       }
 
       if (SSL_set_fd(ssl, hClientSock) != 1)
       {
           ERR_print_errors_fp(stderr);
-          throw "Error creating SSL connection";
+          std::cerr << "Error creating SSL connection\n";
+          close(hClientSock);
+          continue;
       }
-      int r = SSL_accept(ssl);
-      if (r != 1)
+
+      int sslAcceptRet = SSL_accept(ssl);
+      if (sslAcceptRet != 1)
       {
           ERR_print_errors_fp(stderr);
-          throw std::to_string(SSL_get_error(ssl, r)).c_str();
+          std::cerr << std::to_string(SSL_get_error(ssl, sslAcceptRet)).c_str() << std::endl;
+          SSL_shutdown(ssl);
+          SSL_free(ssl);
+          close(hClientSock);
+          continue;
       }
 
       std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info

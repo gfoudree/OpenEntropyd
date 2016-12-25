@@ -22,6 +22,9 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/pem.h>
 #include <vector>
+#include <atomic>
+
+extern std::atomic<bool> sig_int;
 
 class TLSServer {
 private:
