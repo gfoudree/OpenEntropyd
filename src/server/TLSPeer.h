@@ -45,9 +45,9 @@ public:
     void sendData(std::string data);
     std::string recvData(int *readLen);
     
-    friend std::ostream& operator<< (std::ostream &os, std::string data) {
+    //friend std::ostream& operator<< (std::ostream &os, std::string data) {
         //TLSPeer::sendData(data);
-    }
+    //}
     
     TLSPeer(X509 *cliCert, SSL *cliSsl, int cliSock, sockaddr_in cliAddr, const char *ip) : 
         cert(cliCert), ipAddr(ip), ssl(cliSsl), sock(cliSock), cliInfo(cliAddr)

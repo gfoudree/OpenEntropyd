@@ -1,6 +1,8 @@
 #include "TLSServer.h"
 
 TLSServer::~TLSServer() {
+  
+    for (auto &th : handlerThreads) th.join();
     close(serverSock);
     SSL_CTX_free(ctx); //Cleanup openSSL
     ERR_free_strings();
@@ -86,7 +88,6 @@ void TLSServer::recvConnections() {
         int sslAcceptRet = SSL_accept(ssl);
         if (sslAcceptRet != 1) {
             ERR_print_errors_fp(stderr);
-            std::cerr << std::to_string(SSL_get_error(ssl, sslAcceptRet)).c_str() << std::endl;
             SSL_shutdown(ssl);
             SSL_free(ssl);
             close(hClientSock);
@@ -95,15 +96,8 @@ void TLSServer::recvConnections() {
 
         std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info
 
-        int recvBytes = 0;
-        const char *welcomeMsg = "Hello!\n";
-
-        TLSPeer tp(SSL_get_peer_certificate(ssl), ssl, hClientSock, clientInfo, inet_ntoa(clientInfo.sin_addr));
-        tp.sendData(welcomeMsg);
-        do {
-            std::cout << tp.recvData(&recvBytes);
-        } while (recvBytes > 0); //Do this loop until the client disconnects
-        std::cout << "Client disconnected." << std::endl;
+        std::thread t1(&TLSServer::clientHandler, this, std::unique_ptr<TLSPeer>(new TLSPeer(SSL_get_peer_certificate(ssl), ssl, hClientSock, clientInfo, inet_ntoa(clientInfo.sin_addr))));
+        handlerThreads.push_back(std::move(t1));
     }
 }
 
@@ -130,4 +124,19 @@ inline void TLSServer::loadCertificates(const char* caCert, const char* srvCert,
 
 int TLSServer::clientVerifyCallback(int preVerify, X509_STORE_CTX* x509Ctx) {
     return preVerify;
+}
+
+void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
+    
+    int recvBytes = 0;
+    try {
+        peer->sendData("hello");
+        do {
+            std::cout << peer->recvData(&recvBytes);
+        } while (recvBytes > 0); //Do this loop until the client disconnects
+        std::cout << "Client ";
+    }
+    catch (...) {
+        std::cout << "Critical error in R/W data\n";
+    }
 }

@@ -1,6 +1,7 @@
 # Binaries
 openentropyd
 
+*nbproject*
 # Certs
 *.key
 *.pem
