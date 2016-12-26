@@ -1,0 +1,1 @@
+g++ -g -o openentropyd main.cpp TLSServer.cpp -lssl -lcrypto

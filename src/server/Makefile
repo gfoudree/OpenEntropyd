@@ -1,7 +1,9 @@
 CXX = g++
 TARGET = openentropyd
-CXXFLAGS = -g
+CXXFLAGS = -g -std=gnu++14 -O2 -Wall
 LIBS = -lssl -lcrypto
 
 all:
-	$(CXX) $(CXXFLAGS) -o $(TARGET) main.cpp TLSServer.cpp $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET)  main.cpp TLSServer.cpp TLSPeer.cpp $(LIBS)
+clean:
+	rm $(TARGET)

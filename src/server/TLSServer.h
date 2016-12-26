@@ -24,20 +24,24 @@
 #include <vector>
 #include <atomic>
 
+#include "TLSPeer.h"
+
 extern std::atomic<bool> sig_int;
 
 class TLSServer {
 private:
-  SSL_CTX *ctx;
-  const SSL_METHOD *method;
-  EC_KEY *ecdh;
-  sockaddr_in sockInfo;
-  int serverSock = 0;
-
+    SSL_CTX *ctx;
+    const SSL_METHOD *method;
+    sockaddr_in sockInfo;
+    int serverSock;
+    
+    static int clientVerifyCallback(int preVerify, X509_STORE_CTX *x509Ctx);
+    void loadCertificates(const char *caCert, const char *srvCert, const char *srvKey);
+    
 public:
-  TLSServer(const unsigned int port, const char *cacert, const char *cert, const char *key);
-  void init();
-  ~TLSServer();
+    TLSServer(const unsigned int port, const char *cacert, const char *cert, const char *key);
+    void recvConnections();
+    virtual ~TLSServer();
 
 };
 #endif
