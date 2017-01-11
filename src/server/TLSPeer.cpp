@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   TLSPeer.cpp
  * Author: gfoudree
- * 
+ *
  * Created on December 25, 2016, 3:35 PM
  */
 
@@ -14,17 +14,9 @@ TLSPeer::~TLSPeer() {
     SSL_free(ssl);
 }
 
-void TLSPeer::sendData(std::string data) {
-    int ret = SSL_write(ssl, data.c_str(), data.length());
-    if (ret < 0) {
-        ERR_print_errors_fp(stderr);
-        throw std::string("Error writing data to ").append(ipAddr);
-    }
-}
-
 std::string TLSPeer::recvData(int *readLen) {
     char buf[512];
-    memset(buf, 0, sizeof(buf));
+    memset(buf, 0, sizeof (buf));
     *readLen = SSL_read(ssl, buf, sizeof (buf) - 1);
     if (*readLen < 0) {
         ERR_print_errors_fp(stderr);

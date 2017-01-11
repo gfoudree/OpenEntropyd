@@ -1,7 +1,7 @@
 #include "TLSServer.h"
 
 TLSServer::~TLSServer() {
-  
+
     for (auto &th : handlerThreads) th.join();
     close(serverSock);
     SSL_CTX_free(ctx); //Cleanup openSSL
@@ -53,6 +53,9 @@ void TLSServer::recvConnections() {
         close(serverSock);
         throw "Error listening";
     }
+
+    //Drop priviledges, setuid to nobody
+    setuid(65534);
     while (!sig_int) { //While Ctrl+C not hit or SIG_INT raised...
         SSL *ssl;
         int hClientSock = 0;
@@ -127,16 +130,25 @@ int TLSServer::clientVerifyCallback(int preVerify, X509_STORE_CTX* x509Ctx) {
 }
 
 void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
-    
     int recvBytes = 0;
+    std::regex rand_cmd("^RAND\\s\\d{1,4}$");
     try {
-        peer->sendData("hello");
+        peer->sendData("HELO");
         do {
-            std::cout << peer->recvData(&recvBytes);
+            std::string command = peer->recvData(&recvBytes);
+            if (command.length() > 0) {
+              std::cout << command;
+              if (std::regex_match(command, rand_cmd)) { //Handle random command
+                int randLen = atoi(command.substr(4, 4).c_str());
+                std::cout << "Rand request for " << randLen << std::endl;
+              }
+            }
+
         } while (recvBytes > 0); //Do this loop until the client disconnects
-        std::cout << "Client ";
+        std::cout << "Client " << peer->ipAddr << " has disconnected." << std::endl;
     }
     catch (...) {
-        std::cout << "Critical error in R/W data\n";
+        ERR_print_errors_fp(stderr);
+        std::cerr << "Critical error in R/W data to peer " << peer->ipAddr << std::endl;
     }
 }

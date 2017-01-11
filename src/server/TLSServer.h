@@ -24,6 +24,7 @@
 #include <vector>
 #include <atomic>
 #include <thread>
+#include <regex>
 
 #include "TLSPeer.h"
 
@@ -35,13 +36,13 @@ private:
     const SSL_METHOD *method;
     sockaddr_in sockInfo;
     int serverSock;
-    
+
     std::vector<std::thread> handlerThreads;
-    
+
     static int clientVerifyCallback(int preVerify, X509_STORE_CTX *x509Ctx);
     void loadCertificates(const char *caCert, const char *srvCert, const char *srvKey);
     void clientHandler(std::unique_ptr<TLSPeer> peer);
-    
+
 public:
     TLSServer(const unsigned int port, const char *cacert, const char *cert, const char *key);
     void recvConnections();

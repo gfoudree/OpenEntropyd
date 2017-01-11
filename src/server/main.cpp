@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     //Start TLS Server
     try {
-        TLSServer tls(8080, "PFSense-CA.crt", "OpenEntropyd.crt", "OpenEntropyd.key");
+        TLSServer tls(321, "PFSense-CA.crt", "OpenEntropyd.crt", "OpenEntropyd.key");
         tls.recvConnections();
     } catch (const char *err) {
         std::cerr << "Error: " << err << std::endl;

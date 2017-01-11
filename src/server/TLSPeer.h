@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   TLSPeer.h
  * Author: gfoudree
@@ -25,29 +19,35 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <memory>
+#include <sstream>
 
 typedef struct X509_Cert_Info {
     std::unique_ptr<char *> subj, issuer;
 } X509_Cert_Info;
 
 class TLSPeer {
-private:
+public:
     X509 *cert;
     const char *ipAddr;
     SSL *ssl;
     int sock = 0;
     sockaddr_in cliInfo;
-    
-    void parseX509Cert();
-public:
     X509_Cert_Info certInfo;
     
-    void sendData(std::string data);
-    std::string recvData(int *readLen);
+    void parseX509Cert();
     
-    //friend std::ostream& operator<< (std::ostream &os, std::string data) {
-        //TLSPeer::sendData(data);
-    //}
+    template <typename T> void sendData(const T &data) {
+        std::stringstream ss;
+        ss << data;
+
+        int ret = SSL_write(ssl, ss.str().c_str(), ss.str().length());
+        if (ret < 0) {
+            ERR_print_errors_fp(stderr);
+            throw std::string("Error writing data to ").append(ipAddr);
+        }
+    }
+    
+    std::string recvData(int *readLen);
     
     TLSPeer(X509 *cliCert, SSL *cliSsl, int cliSock, sockaddr_in cliAddr, const char *ip) : 
         cert(cliCert), ipAddr(ip), ssl(cliSsl), sock(cliSock), cliInfo(cliAddr)
