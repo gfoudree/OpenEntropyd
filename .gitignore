@@ -3,9 +3,9 @@ openentropyd
 
 *nbproject*
 # Certs
-*.key
-*.pem
-*.crt
+#*.key
+#*.pem
+#*.crt
 
 # Compiled Object files
 *.slo
