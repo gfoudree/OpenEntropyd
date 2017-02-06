@@ -28,6 +28,7 @@
 
 #include "TLSPeer.h"
 #include "TLSSocket.h"
+#include "Logger.h"
 
 extern std::atomic<bool> sig_int;
 
@@ -38,6 +39,7 @@ protected:
 
 public:
     void recvConnections();
+    void exit_handler(int signum);
     TLSServer(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host);
     ~TLSServer();
 };
