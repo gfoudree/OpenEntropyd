@@ -1,8 +1,14 @@
 #include "TLSServer.h"
 
 TLSServer::TLSServer(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host)
-        : TLSSocket(isServer, caCert, cert, key, port, host) {
+ : TLSSocket(isServer, caCert, cert, key, port, host)
+{
 
+}
+
+TLSServer::~TLSServer() {
+  for (auto &th : handlerThreads) th.join();
+  close(sock);
 }
 
 void TLSServer::recvConnections() {
@@ -87,6 +93,10 @@ void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
 
         } while (recvBytes > 0); //Do this loop until the client disconnects
         std::cout << "Client " << peer->ipAddr << " has disconnected." << std::endl;
+    }
+    catch (const char *e) {
+      ERR_print_errors_fp(stderr);
+      std::cerr << e << std::endl;
     }
     catch (...) {
         ERR_print_errors_fp(stderr);

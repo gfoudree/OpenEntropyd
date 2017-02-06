@@ -26,9 +26,12 @@
 
 class TLSClient : public TLSSocket {
 protected:
-
+  SSL *ssl;
 public:
-  
+  void secureConnect();
+  void sendData(const char *data, unsigned int len);
+  TLSClient(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host);
+  ~TLSClient();
 };
 
 #endif

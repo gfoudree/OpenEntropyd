@@ -1,0 +1,2 @@
+-Fix memory leak in server/client
+-Fix problem with server crashing on disconnect (probally an exception issue)

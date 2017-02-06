@@ -39,6 +39,7 @@ protected:
 public:
     void recvConnections();
     TLSServer(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host);
+    ~TLSServer();
 };
 
 #endif

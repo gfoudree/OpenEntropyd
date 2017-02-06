@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   TLSPeer.h
  * Author: gfoudree
  *
@@ -33,9 +33,9 @@ public:
     int sock = 0;
     sockaddr_in cliInfo;
     X509_Cert_Info certInfo;
-    
+
     void parseX509Cert();
-    
+
     template <typename T> void sendData(const T &data) {
         std::stringstream ss;
         ss << data;
@@ -43,13 +43,13 @@ public:
         int ret = SSL_write(ssl, ss.str().c_str(), ss.str().length());
         if (ret < 0) {
             ERR_print_errors_fp(stderr);
-            throw std::string("Error writing data to ").append(ipAddr);
+            throw std::string("Error writing data to ").append(ipAddr).c_str();
         }
     }
-    
+
     std::string recvData(int *readLen);
-    
-    TLSPeer(X509 *cliCert, SSL *cliSsl, int cliSock, sockaddr_in cliAddr, const char *ip) : 
+
+    TLSPeer(X509 *cliCert, SSL *cliSsl, int cliSock, sockaddr_in cliAddr, const char *ip) :
         cert(cliCert), ipAddr(ip), ssl(cliSsl), sock(cliSock), cliInfo(cliAddr)
     {
         parseX509Cert();
@@ -58,4 +58,3 @@ public:
 };
 
 #endif /* TLSPEER_H */
-

@@ -15,6 +15,10 @@ void inline sig_handler(int sig) {
     sig_int = true;
 }
 
+void inline sigpipe_handler(int sig) {
+
+}
+
 int main(int argc, char *argv[]) {
 
     int logFd = open(LOG_FILE, O_WRONLY | O_APPEND | O_CREAT, 0664);
@@ -28,6 +32,9 @@ int main(int argc, char *argv[]) {
     sa.sa_handler = sig_handler;
     sigfillset(&sa.sa_mask);
     sigaction(SIGINT, &sa, NULL);
+
+    //Handle SIGPIPE
+    signal(SIGPIPE, sigpipe_handler);
 
     //Start TLS Server
     try {
