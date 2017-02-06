@@ -1,7 +1,6 @@
-#ifndef TLSCLIENT_H
-#define TLSCLIENT_H
+#ifndef TLSSOCKET_H
+#define TLSSOCKET_H
 
-#include <iostream>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -22,18 +21,20 @@
 #include <openssl/x509_vfy.h>
 #include <openssl/pem.h>
 
-class TLSClient {
+class TLSSocket {
 private:
+  void loadCertificates(const char* caCert, const char* srvCert, const char* srvKey);
+  static int clientVerifyCallback(int preVerify, X509_STORE_CTX *x509Ctx);
+
+protected:
   SSL_CTX *ctx;
   const SSL_METHOD *method;
   sockaddr_in sockInfo;
-  int serverSock;
-  
-public:
-  static int clientVerifyCallback(int preVerify, X509_STORE_CTX* x509Ctx);
+  int sock;
 
-  TLSClient(const char *cliCert, const char *cliKey, const char *caCert);
-  ~TLSClient();
+public:
+  TLSSocket(bool isServer, const char *caCert, const char *cert, const char *key, const unsigned int port, const char *host);
+  ~TLSSocket();
 };
 
 #endif
