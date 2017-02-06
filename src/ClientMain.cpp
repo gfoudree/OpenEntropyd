@@ -8,8 +8,8 @@ int main() {
     tc.sendData("Hello!", 6);
   }
   catch (const char *err) {
-      std::cerr << "Error: " << err << std::endl;
+      Logger::logToFile(err);
   } catch (...) {
-      std::cerr << "Critical error, exiting\n";
+      Logger::logToFile("Critical error, exiting");
   }
 }

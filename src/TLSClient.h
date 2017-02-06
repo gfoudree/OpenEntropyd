@@ -23,6 +23,7 @@
 #include <openssl/pem.h>
 
 #include "TLSSocket.h"
+#include "Logger.h"
 
 class TLSClient : public TLSSocket {
 protected:

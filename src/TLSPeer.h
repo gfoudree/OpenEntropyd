@@ -20,6 +20,7 @@
 #include <openssl/ssl.h>
 #include <memory>
 #include <sstream>
+#include "Logger.h"
 
 typedef struct X509_Cert_Info {
     std::unique_ptr<char *> subj, issuer;

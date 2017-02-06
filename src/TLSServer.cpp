@@ -11,6 +11,15 @@ TLSServer::~TLSServer() {
   close(sock);
 }
 
+void TLSServer::exit_handler(int signum) {
+  for (auto &th : handlerThreads) th.join();
+  close(sock);
+  SSL_CTX_free(ctx); //Cleanup openSSL
+  ERR_free_strings();
+  EVP_cleanup();
+  exit(-1);
+}
+
 void TLSServer::recvConnections() {
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //Setup socket
     if (sock < 0) {
@@ -40,7 +49,7 @@ void TLSServer::recvConnections() {
         hClientSock = accept(sock, (struct sockaddr*) &clientInfo, &cliLen); //Accept clients
 
         if (hClientSock < 0) {
-            std::cerr << "Error on accept\n";
+            Logger::logToFile("Error on server accept");
             close(hClientSock);
             continue; //Stop executing and go to next loop iteration
         }
@@ -48,14 +57,14 @@ void TLSServer::recvConnections() {
         ssl = SSL_new(ctx);
         if (ssl == NULL) {
             ERR_print_errors_fp(stderr);
-            std::cerr << "Error creating new SSL\n";
+            Logger::logToFile("Error creating new SSL object");
             close(hClientSock);
             continue;
         }
 
         if (SSL_set_fd(ssl, hClientSock) != 1) {
             ERR_print_errors_fp(stderr);
-            std::cerr << "Error creating SSL connection\n";
+            Logger::logToFile("Error setting file descriptor for SSL object");
             close(hClientSock);
             continue;
         }
@@ -69,7 +78,10 @@ void TLSServer::recvConnections() {
             continue;
         }
 
-        std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info
+        Logger::logToFile(std::string("Got connection from: ").append(inet_ntoa(clientInfo.sin_addr))
+          .append(" Using cipher: ").append(SSL_get_cipher(ssl)).c_str());
+
+        //std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info
 
         std::thread t1(&TLSServer::clientHandler, this, std::unique_ptr<TLSPeer>(new TLSPeer(SSL_get_peer_certificate(ssl), ssl, hClientSock, clientInfo, inet_ntoa(clientInfo.sin_addr))));
         handlerThreads.push_back(std::move(t1));
@@ -96,10 +108,10 @@ void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
     }
     catch (const char *e) {
       ERR_print_errors_fp(stderr);
-      std::cerr << e << std::endl;
+      Logger::logToFile(e);
     }
     catch (...) {
         ERR_print_errors_fp(stderr);
-        std::cerr << "Critical error in R/W data to peer " << peer->ipAddr << std::endl;
+        Logger::logToFile(std::string("Critical error in R/W data to peer ").append(peer->ipAddr).c_str());
     }
 }

@@ -10,7 +10,6 @@ TLSClient::~TLSClient() {
   close(sock);
   SSL_shutdown(ssl);
   SSL_free(ssl);
-  std::cout << "Exiting!" << std::endl;
 }
 
 void TLSClient::secureConnect() {
@@ -46,6 +45,6 @@ void TLSClient::secureConnect() {
 void TLSClient::sendData(const char *data, unsigned int len) {
   if (SSL_write(ssl, data, len) < 1) {
     ERR_print_errors_fp(stderr);
-    std::cerr << "Error writing data to server" << std::endl;
+    Logger::logToFile("Error writing data to server");
   }
 }
