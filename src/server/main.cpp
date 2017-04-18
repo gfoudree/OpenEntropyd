@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "Logger.h"
+#include "EntropyPool.h"
 
 std::atomic<bool> sig_int;
 
@@ -16,6 +17,15 @@ void inline sig_handler(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+
+    EntropyPool e = EntropyPool();
+    try {
+    std::cout << e.getAvailEntropy();
+    }
+    catch (const char *e) {
+      std::cerr << e << std::endl;
+    }
+    return 0;
 
     int logFd = open(LOG_FILE, O_WRONLY | O_APPEND | O_CREAT, 0664);
     dup2(logFd, 2); //Redirect stderr to our logfile
