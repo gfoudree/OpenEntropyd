@@ -1,7 +1,2 @@
--Fix "Error on accept" message when the program exits via Ctrl+C
--Implement protocol for querying server for entropy
--Find RNG source
--Make client work with server (C code not OpenSSL)
--Get logger working instead of printing to stderr
--Get client to introduce entropy to it's pool and increment entropy count
-
+-Fix memory leak in server/client
+-Fix problem with server crashing on disconnect (probally an exception issue)

@@ -5,14 +5,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
 class Logger {
-private:
-	time_t ltime;
-	std::ofstream logFile;
 public:
-	void logToFile(const char *logEntry);
-	Logger();
+	static void logToFile(const char *logEntry);
 };
 
 #endif

@@ -19,8 +19,7 @@ std::string TLSPeer::recvData(int *readLen) {
     memset(buf, 0, sizeof (buf));
     *readLen = SSL_read(ssl, buf, sizeof (buf) - 1);
     if (*readLen < 0) {
-        ERR_print_errors_fp(stderr);
-        throw std::string("Error reading from ").append(ipAddr);
+        throw std::string("Error reading from ").append(ipAddr).c_str();
     }
     return std::string(buf);
 }

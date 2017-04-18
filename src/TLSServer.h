@@ -27,25 +27,21 @@
 #include <regex>
 
 #include "TLSPeer.h"
+#include "TLSSocket.h"
+#include "Logger.h"
 
 extern std::atomic<bool> sig_int;
 
-class TLSServer {
-private:
-    SSL_CTX *ctx;
-    const SSL_METHOD *method;
-    sockaddr_in sockInfo;
-    int serverSock;
-
+class TLSServer : public TLSSocket {
+protected:
     std::vector<std::thread> handlerThreads;
-
-    static int clientVerifyCallback(int preVerify, X509_STORE_CTX *x509Ctx);
-    void loadCertificates(const char *caCert, const char *srvCert, const char *srvKey);
     void clientHandler(std::unique_ptr<TLSPeer> peer);
 
 public:
-    TLSServer(const unsigned int port, const char *cacert, const char *cert, const char *key);
     void recvConnections();
-    virtual ~TLSServer();
+    void exit_handler(int signum);
+    TLSServer(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host);
+    ~TLSServer();
 };
+
 #endif
