@@ -49,7 +49,7 @@ void TLSServer::recvConnections() {
         hClientSock = accept(sock, (struct sockaddr*) &clientInfo, &cliLen); //Accept clients
 
         if (hClientSock < 0) {
-            Logger::logToFile("Error on server accept");
+            Logger<const char*>::logToFile("Error on server accept");
             close(hClientSock);
             continue; //Stop executing and go to next loop iteration
         }
@@ -57,14 +57,14 @@ void TLSServer::recvConnections() {
         ssl = SSL_new(ctx);
         if (ssl == NULL) {
             ERR_print_errors_fp(stderr);
-            Logger::logToFile("Error creating new SSL object");
+            Logger<const char*>::logToFile("Error creating new SSL object");
             close(hClientSock);
             continue;
         }
 
         if (SSL_set_fd(ssl, hClientSock) != 1) {
             ERR_print_errors_fp(stderr);
-            Logger::logToFile("Error setting file descriptor for SSL object");
+            Logger<const char*>::logToFile("Error setting file descriptor for SSL object");
             close(hClientSock);
             continue;
         }
@@ -72,14 +72,15 @@ void TLSServer::recvConnections() {
         int sslAcceptRet = SSL_accept(ssl);
         if (sslAcceptRet != 1) {
             ERR_print_errors_fp(stderr);
+            Logger<const char*>::logToFile("Error accepting on SSL socket");
             SSL_shutdown(ssl);
             SSL_free(ssl);
             close(hClientSock);
             continue;
         }
 
-        Logger::logToFile(std::string("Got connection from: ").append(inet_ntoa(clientInfo.sin_addr))
-          .append(" Using cipher: ").append(SSL_get_cipher(ssl)).c_str());
+        Logger<std::string>::logToFile(std::string("Got connection from: ").append(inet_ntoa(clientInfo.sin_addr))
+          .append(" Using cipher: ").append(SSL_get_cipher(ssl)));
 
         //std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info
 
@@ -90,28 +91,28 @@ void TLSServer::recvConnections() {
 
 void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
     int recvBytes = 0;
-    std::regex rand_cmd("^RAND\\s\\d{1,4}$");
     try {
-        peer->sendData("HELO");
+        peer->sendData(SRV_HELO);
         do {
-            std::string command = peer->recvData(&recvBytes);
-            if (command.length() > 0) {
-              std::cout << command;
-              if (std::regex_match(command, rand_cmd)) { //Handle random command
-                int randLen = atoi(command.substr(4, 4).c_str());
-                std::cout << "Rand request for " << randLen << std::endl;
-              }
-            }
+            proto p;
+            auto data = peer->recvData(&recvBytes);
+            memcpy(&p, data.get(), 258);
+            if (p.data_id == ID_GET_ENTROPY) {
+              entropy_request er;
+              bzero(&er, sizeof(er));
+              memcpy(&er, p.data, 3*sizeof(uint8_t));
 
+              std::cout << "Got an Entropy Request for " << (int)er.szEntropy << " bytes\n";
+            }
         } while (recvBytes > 0); //Do this loop until the client disconnects
-        std::cout << "Client " << peer->ipAddr << " has disconnected." << std::endl;
+        Logger<std::string>::logToFile(std::string("Client ").append(peer->ipAddr).append(" has disconnected"));
     }
     catch (const char *e) {
       ERR_print_errors_fp(stderr);
-      Logger::logToFile(e);
+      Logger<const char*>::logToFile(e);
     }
     catch (...) {
         ERR_print_errors_fp(stderr);
-        Logger::logToFile(std::string("Critical error in R/W data to peer ").append(peer->ipAddr).c_str());
+        Logger<const char*>::logToFile(std::string("Critical error in R/W data to peer ").append(peer->ipAddr).c_str());
     }
 }

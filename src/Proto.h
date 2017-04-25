@@ -3,20 +3,24 @@
 
 #define ID_GET_ENTROPY 1
 #define ID_RECV_ENTROPY 2
+#define SRV_HELO 0xFF
+#define CLI_HELO 0xF0
 
 struct proto {
-  unsigned short data_id;
-
-};
+  uint8_t data_id;
+  unsigned char data[258];
+} _proto;
 
 struct entropy_request {
-    unsigned short entropy_ammt;
-    unsigned short priority;
-};
+    uint8_t szEntropy;
+    uint8_t priority;
+    uint8_t id;
+} _entropy_request;
 
 struct entropy_reply {
-  unsigned int 
-  unsigned char entropy_blob[512];
-};
+    uint8_t id;
+    uint8_t szEntropy;
+    unsigned char entropyBuf[256];
+} _entropy_reply;
 
 #endif

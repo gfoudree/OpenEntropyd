@@ -29,6 +29,7 @@
 #include "TLSPeer.h"
 #include "TLSSocket.h"
 #include "Logger.h"
+#include "Proto.h"
 
 extern std::atomic<bool> sig_int;
 

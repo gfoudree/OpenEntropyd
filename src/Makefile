@@ -1,4 +1,4 @@
-CXX = clang++
+CXX = g++
 TARGETS = openentropy_client openentropyd
 CXXFLAGS = -g -std=gnu++14 -O2 -Wall -fPIE
 LIBS = -lssl -lcrypto -lpthread

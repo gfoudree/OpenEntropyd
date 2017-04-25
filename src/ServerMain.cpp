@@ -39,12 +39,12 @@ int main(int argc, char *argv[]) {
         std::signal(SIGINT, sig_handler);
         std::signal(SIGTERM, sig_handler);
 
-        Logger::logToFile("Starting OpenEntropyd");
+        Logger<const char*>::logToFile("Starting OpenEntropyd");
 	      tls->recvConnections();
     } catch (const char *err) {
-         Logger::logToFile(err);
+         Logger<const char*>::logToFile(err);
     } catch (...) {
-        Logger::logToFile("Critical error, exiting!");
+        Logger<const char*>::logToFile("Critical error, exiting!");
     }
     close(logFd);
 }

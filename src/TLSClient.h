@@ -30,7 +30,7 @@ protected:
   SSL *ssl;
 public:
   void secureConnect();
-  void sendData(const char *data, unsigned int len);
+  void sendData(const void *data, unsigned int len);
   TLSClient(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host);
   ~TLSClient();
 };

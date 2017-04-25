@@ -3,7 +3,6 @@
 TLSClient::TLSClient(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host)
  : TLSSocket(isServer, caCert, cert, key, port, host)
 {
-
 }
 
 TLSClient::~TLSClient() {
@@ -42,9 +41,9 @@ void TLSClient::secureConnect() {
   }
 }
 
-void TLSClient::sendData(const char *data, unsigned int len) {
+void TLSClient::sendData(const void *data, unsigned int len) {
   if (SSL_write(ssl, data, len) < 1) {
     ERR_print_errors_fp(stderr);
-    Logger::logToFile("Error writing data to server");
+    Logger<const char*>::logToFile("Error writing data to server");
   }
 }

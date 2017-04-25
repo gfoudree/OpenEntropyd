@@ -48,7 +48,7 @@ public:
         }
     }
 
-    std::string recvData(int *readLen);
+    std::unique_ptr<unsigned char[]> recvData(int *readLen);
 
     TLSPeer(X509 *cliCert, SSL *cliSsl, int cliSock, sockaddr_in cliAddr, const char *ip) :
         cert(cliCert), ipAddr(ip), ssl(cliSsl), sock(cliSock), cliInfo(cliAddr)

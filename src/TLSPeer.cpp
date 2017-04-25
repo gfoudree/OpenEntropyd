@@ -14,14 +14,14 @@ TLSPeer::~TLSPeer() {
     SSL_free(ssl);
 }
 
-std::string TLSPeer::recvData(int *readLen) {
-    char buf[512];
-    memset(buf, 0, sizeof (buf));
-    *readLen = SSL_read(ssl, buf, sizeof (buf) - 1);
+std::unique_ptr<unsigned char[]> TLSPeer::recvData(int *readLen) {
+    std::unique_ptr<unsigned char[]> buf(new unsigned char[259]);
+    memset(buf.get(), 0, sizeof(buf));
+    *readLen = SSL_read(ssl, buf.get(), sizeof (buf) - 1);
     if (*readLen < 0) {
         throw std::string("Error reading from ").append(ipAddr).c_str();
     }
-    return std::string(buf);
+    return buf;
 }
 
 void TLSPeer::parseX509Cert() {
