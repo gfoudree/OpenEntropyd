@@ -1,4 +1,5 @@
 #include "TLSServer.h"
+#include "Logger.h"
 #include <csignal>
 #include <iostream>
 #include <unistd.h>
@@ -8,19 +9,8 @@
 #include <fcntl.h>
 #include <functional>
 
-#include "Logger.h"
-
 std::shared_ptr<TLSServer> tls;
 std::atomic<bool> sig_int;
-
-void inline sigpipe_handler(int sig) {
-
-}
-
-void inline sig_handler(int sig) {
-  sig_int = 1;
-  tls->exit_handler(sig);
-}
 
 int main(int argc, char *argv[]) {
 
@@ -29,15 +19,15 @@ int main(int argc, char *argv[]) {
     //dup2(logFd, 1); //Redirect stdout to our logfile
 
     //Handle SIGPIPE
-    std::signal(SIGPIPE, sigpipe_handler);
+    std::signal(SIGPIPE, [](int) -> void {});
 
     //Start TLS Server
     try {
         tls.reset(new TLSServer(true, "ca.crt", "server.crt", "server.key", 321, "0.0.0.0"));
 
         //Handle Ctrl+C / SIGINT so that our destructors are called.
-        std::signal(SIGINT, sig_handler);
-        std::signal(SIGTERM, sig_handler);
+        std::signal(SIGINT, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig);});
+        std::signal(SIGTERM, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig);});
 
         Logger<const char*>::logToFile("Starting OpenEntropyd");
 	      tls->recvConnections();

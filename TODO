@@ -1,2 +1,9 @@
 -Fix memory leak in server/client
--Fix problem with server crashing on disconnect (probally an exception issue)
+-Come up with solution to requesting entropy because we are set to only allow up to 256b of
+  entropy to be requested at a time because we don't want to allow clients to deplete pool.
+  We need to add a way to make the client pool addition unpredictable in a way we don't increase
+  load on the server. Perhaps we read the requested N bytes from /dev/random and then XOR that
+  with 4 blocks of equal size from /dev/urandom and then the client randomly picks from there?
+  Is this still increasing entropy? Need to find out...
+-Fix logging. Should be stdout, stderr, & logFile
+-Fix error with logfile permissions, why doesn't 644 work????

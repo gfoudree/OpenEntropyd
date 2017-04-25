@@ -1,5 +1,4 @@
 #include "TLSClient.h"
-#include "Proto.h"
 #include <iostream>
 
 int main() {

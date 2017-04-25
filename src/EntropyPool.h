@@ -6,12 +6,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/random.h>
+#include <memory>
+#include <time.h>
 
 class EntropyPool {
 public:
   EntropyPool();
 
-  unsigned int getAvailEntropy();
+  static unsigned int getAvailEntropy();
+  std::unique_ptr<unsigned char[]> getRandomBlock(const unsigned int size);
 };
 
 #endif

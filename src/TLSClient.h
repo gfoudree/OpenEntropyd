@@ -24,6 +24,7 @@
 
 #include "TLSSocket.h"
 #include "Logger.h"
+#include "Proto.h"
 
 class TLSClient : public TLSSocket {
 protected:
