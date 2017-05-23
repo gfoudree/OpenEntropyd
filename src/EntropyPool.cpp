@@ -2,7 +2,27 @@
 
 EntropyPool::EntropyPool()
 {
+  //std::thread workerT(&EntropyPool::workerThread, EntropyPool());
+}
 
+void EntropyPool::workerThread()
+{
+  while (1 == 1)
+  {
+    /*
+    if (!peers.empty())
+    {
+      entropy_queue eq = peers.top();
+      peers.pop();
+      eq.hPromise.set_value(getRandomBlock(eq.size));
+    }
+    */
+  }
+}
+
+void EntropyPool::requestEntropy(struct entropy_queue &eq)
+{
+  //peers.push(eq);
 }
 
 unsigned int EntropyPool::getAvailEntropy()

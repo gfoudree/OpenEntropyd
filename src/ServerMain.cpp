@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
         std::signal(SIGTERM, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig);});
 
         Logger<const char*>::logToFile("Starting OpenEntropyd");
+
 	      tls->recvConnections();
     } catch (const char *err) {
          Logger<const char*>::logToFile(err);

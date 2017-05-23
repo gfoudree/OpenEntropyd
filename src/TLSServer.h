@@ -30,6 +30,7 @@
 #include "TLSSocket.h"
 #include "Logger.h"
 #include "Proto.h"
+#include "EntropyPool.h"
 
 extern std::atomic<bool> sig_int;
 
@@ -37,6 +38,7 @@ class TLSServer : public TLSSocket {
 protected:
     std::vector<std::thread> handlerThreads;
     void clientHandler(std::unique_ptr<TLSPeer> peer);
+    EntropyPool *ep;
 
 public:
     void recvConnections();

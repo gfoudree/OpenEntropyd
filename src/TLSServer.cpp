@@ -3,12 +3,13 @@
 TLSServer::TLSServer(bool isServer, const char *caCert, const char *cert, const char *key, unsigned int port, const char *host)
  : TLSSocket(isServer, caCert, cert, key, port, host)
 {
-
+  ep = new EntropyPool();
 }
 
 TLSServer::~TLSServer() {
   for (auto &th : handlerThreads) th.join();
   close(sock);
+  delete ep;
 }
 
 void TLSServer::exit_handler(int signum) {
@@ -103,6 +104,15 @@ void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
               memcpy(&er, p.data, 3*sizeof(uint8_t));
 
               std::cout << "Got an Entropy Request for " << (int)er.szEntropy << " bytes\n";
+
+              //Make the entropy Request
+              entropy_queue eq;
+              eq.priority = (int)er.priority;
+              eq.size = (int)er.szEntropy;
+              //std::promise<unsigned char*> hPromise;
+              //std::future<unsigned char*> hFuture = hPromise.get_future();
+              //ep->requestEntropy(eq);
+              //hFuture.get();
             }
         } while (recvBytes > 0); //Do this loop until the client disconnects
         Logger<std::string>::logToFile(std::string("Client ").append(peer->ipAddr).append(" has disconnected"));
