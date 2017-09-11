@@ -14,11 +14,6 @@ TLSServer::~TLSServer() {
 
 void TLSServer::exit_handler(int signum) {
   for (auto &th : handlerThreads) th.join();
-  close(sock);
-  SSL_CTX_free(ctx); //Cleanup openSSL
-  ERR_free_strings();
-  EVP_cleanup();
-  exit(-1);
 }
 
 void TLSServer::recvConnections() {
@@ -82,8 +77,6 @@ void TLSServer::recvConnections() {
 
         Logger<std::string>::logToFile(std::string("Got connection from: ").append(inet_ntoa(clientInfo.sin_addr))
           .append(" Using cipher: ").append(SSL_get_cipher(ssl)));
-
-        //std::cout << "Got connection from: " << inet_ntoa(clientInfo.sin_addr) << " Using cipher " << SSL_get_cipher(ssl) << std::endl; //Print out connection info
 
         std::thread t1(&TLSServer::clientHandler, this, std::unique_ptr<TLSPeer>(new TLSPeer(SSL_get_peer_certificate(ssl), ssl, hClientSock, clientInfo, inet_ntoa(clientInfo.sin_addr))));
         handlerThreads.push_back(std::move(t1));

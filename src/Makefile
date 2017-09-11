@@ -1,6 +1,6 @@
 CXX = clang++
 TARGETS = openentropy_client openentropyd
-CXXFLAGS = -g -std=gnu++14 -O2 -Wall -fPIE
+CXXFLAGS = -g -std=gnu++14 -O2 -Wall -fPIE -I ../include
 LIBS = -lssl -lcrypto -lpthread
 SOURCES = $(OPENENTROPYD_SOURCES) $(OPENENTROPY_CLIENT_SOURCES)
 OPENENTROPYD_SOURCES = ServerMain.cpp TLSSocket.cpp TLSServer.cpp Logger.cpp TLSPeer.cpp EntropyPool.cpp
@@ -19,7 +19,7 @@ openentropy_client: $(OPENENTROPYD_CLIENT_OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 .PHONY : clean
 clean :
-	        -rm *.o
-					-rm $(TARGETS)
+	-rm *.o
+	-rm $(TARGETS)
 run:
 	./$(TARGET)

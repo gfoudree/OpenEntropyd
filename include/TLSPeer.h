@@ -18,6 +18,7 @@
 #include <iostream>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <string.h>
 #include <memory>
 #include <sstream>
 #include "Logger.h"

@@ -26,12 +26,12 @@ int main(int argc, char *argv[]) {
         tls.reset(new TLSServer(true, "ca.crt", "server.crt", "server.key", 321, "0.0.0.0"));
 
         //Handle Ctrl+C / SIGINT so that our destructors are called.
-        std::signal(SIGINT, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig);});
-        std::signal(SIGTERM, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig);});
+        std::signal(SIGINT, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig); exit(-1);});
+        std::signal(SIGTERM, [](int sig) -> void {sig_int = 1; tls->exit_handler(sig); exit(-1);});
 
         Logger<const char*>::logToFile("Starting OpenEntropyd");
 
-	      tls->recvConnections();
+	tls->recvConnections();
     } catch (const char *err) {
          Logger<const char*>::logToFile(err);
     } catch (...) {

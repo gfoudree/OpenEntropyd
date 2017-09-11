@@ -33,6 +33,9 @@ void Logger<T>::logToFile(T logEntry) {
 		std::cout << "[" << time_buf << "] " << ss.str() << std::endl << std::flush;
 		logFile.close();
 	}
+	else {
+		std::cerr << "[ERROR] Unable to open " << LOG_FILE << std::endl;
+	}
 }
 
 #endif
