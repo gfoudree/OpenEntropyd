@@ -2,27 +2,11 @@
 
 EntropyPool::EntropyPool()
 {
-  //std::thread workerT(&EntropyPool::workerThread, EntropyPool());
 }
 
-void EntropyPool::workerThread()
+std::unique_ptr<unsigned char[]> EntropyPool::requestEntropy(struct entropy_queue &eq)
 {
-  while (1 == 1)
-  {
-    /*
-    if (!peers.empty())
-    {
-      entropy_queue eq = peers.top();
-      peers.pop();
-      eq.hPromise.set_value(getRandomBlock(eq.size));
-    }
-    */
-  }
-}
-
-void EntropyPool::requestEntropy(struct entropy_queue &eq)
-{
-  //peers.push(eq);
+  return getRandomBlock(eq.size);
 }
 
 unsigned int EntropyPool::getAvailEntropy()
@@ -44,12 +28,17 @@ unsigned int EntropyPool::getAvailEntropy()
 std::unique_ptr<unsigned char[]> EntropyPool::getRandomBlock(const unsigned int size)
 {
   std::unique_ptr<unsigned char[]> entBlock(new unsigned char[size]);
+  bzero(entBlock.get(), size);
   while (EntropyPool::getAvailEntropy() < size + 128) { //While we don't have the required entropy + 128, wait...
     struct timespec ts;
     ts.tv_sec = 300/1000; //Sleep 300ms
     ts.tv_nsec = 0;
     if (nanosleep(&ts, NULL) != 0) //Sleep!
       throw "Error sleeping while waiting for entropy!";
+  }
+
+  if (syscall(SYS_getrandom, entBlock.get(), size, GRND_NONBLOCK) != size) {  //TODO: Change this to GRND_RANDOM for production!
+  	throw "Error getrandom() did not give us enough entropy";
   }
   return entBlock;
 }

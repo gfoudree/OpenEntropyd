@@ -11,6 +11,11 @@
 #define PRIORITY3 3
 #define PRIORITY4 4
 
+#define PSK "TESTPSK" //TODO: Make this changed for production
+
+#include <openssl/hmac.h>
+#include <memory>
+
 struct proto {
   uint8_t data_id;                  //Type of request
   unsigned char data[258];          //Data block, cast to appropriate struct. 258 because entropy_reply = (1b+1b+256b -> 258b);
@@ -26,6 +31,13 @@ struct entropy_reply {
     uint8_t id;                     //Unique ID of request
     uint8_t szEntropy;              //How much entropy we got
     unsigned char entropyBuf[256];  //Actual entropy
+};
+
+class Proto {
+
+public:
+	static bool verifyHMAC(struct entropy_reply er);
+	static std::unique_ptr <unsigned char[]> genHMAC(struct entropy_reply er);
 };
 
 #endif

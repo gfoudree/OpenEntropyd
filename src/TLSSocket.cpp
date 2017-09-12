@@ -13,9 +13,9 @@ TLSSocket::TLSSocket(bool isServer, const char *caCert, const char *cert, const 
   SSL_library_init();
 
   if (isServer)
-    method = TLSv1_2_server_method(); //We want TLS 1.2
+    method = TLS_server_method();
   else
-    method = TLSv1_2_method();
+    method = TLS_method();
 
   if (method == NULL) {
     ERR_print_errors_fp(stderr);

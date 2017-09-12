@@ -1,6 +1,6 @@
 CXX = clang++
 TARGETS = openentropy_client openentropyd
-CXXFLAGS = -g -std=gnu++14 -O2 -Wall -fPIE -I ../include
+CXXFLAGS = -g -std=gnu++14 -O0 -Wall -fPIE -I ../include
 LIBS = -lssl -lcrypto -lpthread
 SOURCES = $(OPENENTROPYD_SOURCES) $(OPENENTROPY_CLIENT_SOURCES)
 OPENENTROPYD_SOURCES = ServerMain.cpp TLSSocket.cpp TLSServer.cpp Logger.cpp TLSPeer.cpp EntropyPool.cpp

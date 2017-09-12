@@ -102,10 +102,12 @@ void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
               entropy_queue eq;
               eq.priority = (int)er.priority;
               eq.size = (int)er.szEntropy;
-              //std::promise<unsigned char*> hPromise;
-              //std::future<unsigned char*> hFuture = hPromise.get_future();
-              //ep->requestEntropy(eq);
-              //hFuture.get();
+              std::unique_ptr<unsigned char[]> entBlock = ep->requestEntropy(eq);
+
+	      std::cout << "LEN of " << sizeof(entBlock) << std::endl;
+	      entropy_reply entReply;
+	      entReply.szEntropy = eq.size;
+	      memcpy(entReply.entropyBuf, entBlock.get(), eq.size);
             }
         } while (recvBytes > 0); //Do this loop until the client disconnects
         Logger<std::string>::logToFile(std::string("Client ").append(peer->ipAddr).append(" has disconnected"));
