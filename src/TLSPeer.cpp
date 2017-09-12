@@ -30,3 +30,10 @@ void TLSPeer::parseX509Cert() {
         certInfo.issuer = std::make_unique<char *>(X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0));
     }
 }
+
+void TLSPeer::sendData(const void *data, unsigned int len) {
+  if (SSL_write(ssl, data, len) < 1) {
+    ERR_print_errors_fp(stderr);
+    Logger<const char*>::logToFile("Error writing data to server");
+  }
+}

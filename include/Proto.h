@@ -12,13 +12,15 @@
 #define PRIORITY4 4
 
 #define PSK "TESTPSK" //TODO: Make this changed for production
+#define HMAC_LEN 384/8
 
 #include <openssl/hmac.h>
 #include <memory>
+#include <iostream>
 
 struct proto {
   uint8_t data_id;                  //Type of request
-  unsigned char data[258];          //Data block, cast to appropriate struct. 258 because entropy_reply = (1b+1b+256b -> 258b);
+  unsigned char data[306];          //Data block, cast to appropriate struct. 258 because entropy_reply = (1b+1b+256b+48b -> 306b);
 };
 
 struct entropy_request {
@@ -31,6 +33,7 @@ struct entropy_reply {
     uint8_t id;                     //Unique ID of request
     uint8_t szEntropy;              //How much entropy we got
     unsigned char entropyBuf[256];  //Actual entropy
+    unsigned char HMAC[HMAC_LEN];
 };
 
 class Proto {

@@ -38,16 +38,7 @@ public:
 
     void parseX509Cert();
 
-    template <typename T> void sendData(const T &data) {
-        std::stringstream ss;
-        ss << data;
-
-        int ret = SSL_write(ssl, ss.str().c_str(), ss.str().length());
-        if (ret < 0) {
-            ERR_print_errors_fp(stderr);
-            throw std::string("Error writing data to ").append(ipAddr).c_str();
-        }
-    }
+    void sendData(const void *data, unsigned int len);
 
     std::unique_ptr<unsigned char[]> recvData(int *readLen);
 

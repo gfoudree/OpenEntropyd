@@ -86,7 +86,7 @@ void TLSServer::recvConnections() {
 void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
     int recvBytes = 0;
     try {
-        peer->sendData(SRV_HELO);
+        //peer->sendData(SRV_HELO, 1);
         do {
             proto p;
             auto data = peer->recvData(&recvBytes);
@@ -104,10 +104,16 @@ void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
               eq.size = (int)er.szEntropy;
               std::unique_ptr<unsigned char[]> entBlock = ep->requestEntropy(eq);
 
-	      std::cout << "LEN of " << sizeof(entBlock) << std::endl;
 	      entropy_reply entReply;
 	      entReply.szEntropy = eq.size;
 	      memcpy(entReply.entropyBuf, entBlock.get(), eq.size);
+	      memset(entReply.HMAC, 'A', 48); //TODO: Implement real HMAC
+
+	      proto reply;
+	      memcpy(&reply.data, &entReply, sizeof(entReply));
+	      reply.data_id = ID_RECV_ENTROPY;
+
+	      peer->sendData((void*)&reply, sizeof(proto));
             }
         } while (recvBytes > 0); //Do this loop until the client disconnects
         Logger<std::string>::logToFile(std::string("Client ").append(peer->ipAddr).append(" has disconnected"));
