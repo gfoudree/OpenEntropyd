@@ -42,3 +42,26 @@ std::unique_ptr<unsigned char[]> EntropyPool::getRandomBlock(const unsigned int 
   }
   return entBlock;
 }
+
+uint32_t EntropyPool::getIntelRandom() {
+	cpuid_t cpu;
+	asm volatile (
+		"mov $0, %%rax\t\n"
+		"mov $0, %%rcx\t\n"
+		"cpuid\t\n"
+		 : "=a" (cpu.eax), "=b" (cpu.ebx), "=c" (cpu.ecx), "=d" (cpu.edx): :);
+
+	if (memcmp((char*)&cpu.ebx, "Genu", 4) == 0 && memcmp((char*)&cpu.edx, "ineI", 4) == 0 && memcmp((char*)&cpu.ecx, "ntel", 4) == 0) {
+		uint32_t r = 0;
+		asm volatile(
+			"getrnd:\t\n"
+			"clc\t\n"		//Clear CF
+			"rdrandl %0\t\n"
+			"jnc getrnd"		//If CF not set, it failed...
+			: "=r" (r)::);
+		return r;
+	}
+	else {
+		throw "Unsupported CPU!";
+	}
+}

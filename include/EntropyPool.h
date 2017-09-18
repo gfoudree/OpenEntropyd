@@ -9,12 +9,19 @@
 #include <sys/syscall.h>
 #include <memory>
 #include <unistd.h>
+#include <string.h>
 #include <time.h>
 #include <queue>
 #include <strings.h>
 #include <functional>
 #include <thread>
 #include <future>
+typedef struct cpuid_struct {
+	unsigned int eax;
+	unsigned int ebx;
+	unsigned int ecx;
+	unsigned int edx;
+} cpuid_t;
 
 typedef struct entropy_queue {
   uint8_t priority;
@@ -35,6 +42,7 @@ public:
 
   static unsigned int getAvailEntropy();
   std::unique_ptr<unsigned char[]> requestEntropy(entropy_queue &eq);
+  static uint32_t getIntelRandom();
 };
 
 #endif
