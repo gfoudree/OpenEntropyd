@@ -16,6 +16,7 @@
 
 #include <openssl/hmac.h>
 #include <memory>
+#include <string.h>
 #include <iostream>
 
 struct proto {
@@ -39,8 +40,8 @@ struct entropy_reply {
 class Proto {
 
 public:
-	static bool verifyHMAC(struct entropy_reply er);
-	static std::unique_ptr <unsigned char[]> genHMAC(struct entropy_reply er);
+	static bool verifyHMAC(struct entropy_reply &er);
+	static unsigned char *genHMAC(struct entropy_reply &er);
 };
 
 #endif

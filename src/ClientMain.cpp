@@ -1,4 +1,5 @@
 #include "TLSClient.h"
+#include "Proto.h"
 #include <iostream>
 
 int main() {
@@ -16,6 +17,7 @@ int main() {
     memcpy(req.data, &er, sizeof(er));
 
     tc.sendData(&req, sizeof(req));
+
   }
   catch (const char *err) {
       Logger<const char*>::logToFile(err);
