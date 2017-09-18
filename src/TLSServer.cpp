@@ -86,34 +86,43 @@ void TLSServer::recvConnections() {
 void TLSServer::clientHandler(std::unique_ptr<TLSPeer> peer) {
     int recvBytes = 0;
     try {
-        //peer->sendData(SRV_HELO, 1);
+        if (!peer->sendControlMsg(ID_HELO)) {
+        	throw "Error sending Hello message";
+        }
         do {
             proto p;
             auto data = peer->recvData(&recvBytes);
-            memcpy(&p, data.get(), 258);
+            memcpy(&p.data, data.get(), ERPKT);
             if (p.data_id == ID_GET_ENTROPY) {
+              proto reply;
               entropy_request er;
               bzero(&er, sizeof(er));
               memcpy(&er, p.data, 3*sizeof(uint8_t));
 
-              std::cout << "Got an Entropy Request for " << (int)er.szEntropy << " bytes\n";
+              if ((int)er.szEntropy > MAX_ENT_SZ || (int)er.szEntropy < MIN_ENT_SZ || (int)er.priority > 4 ||
+              		(int)er.priority > 4 || (int)er.id < 0) { //Invalid size requested
+		reply.data_id = ID_INVALID_REQUEST;
+              }
+	      else {
+		      //Make the entropy Request
+		      entropy_queue eq;
+		      eq.priority = (int)er.priority;
+		      eq.size = (int)er.szEntropy;
+		      std::unique_ptr<unsigned char[]> entBlock = ep->requestEntropy(eq);
 
-              //Make the entropy Request
-              entropy_queue eq;
-              eq.priority = (int)er.priority;
-              eq.size = (int)er.szEntropy;
-              std::unique_ptr<unsigned char[]> entBlock = ep->requestEntropy(eq);
+		      entropy_reply entReply;
+		      entReply.szEntropy = eq.size;
+		      memcpy(entReply.entropyBuf, entBlock.get(), eq.size);
+		      memcpy(entReply.HMAC, Proto::genHMAC(entReply), HMAC_LEN);
 
-	      entropy_reply entReply;
-	      entReply.szEntropy = eq.size;
-	      memcpy(entReply.entropyBuf, entBlock.get(), eq.size);
-	      memset(entReply.HMAC, 'A', 48); //TODO: Implement real HMAC
 
-	      proto reply;
-	      memcpy(&reply.data, &entReply, sizeof(entReply));
-	      reply.data_id = ID_RECV_ENTROPY;
+		      memcpy(&reply.data, &entReply, sizeof(entReply));
+		      reply.data_id = ID_RECV_ENTROPY;
+	      }
 
-	      peer->sendData((void*)&reply, sizeof(proto));
+	      if (!peer->sendData((void*)&reply, sizeof(proto))) {
+	      		throw "Error sending entropy packet";
+	      }
             }
         } while (recvBytes > 0); //Do this loop until the client disconnects
         Logger<std::string>::logToFile(std::string("Client ").append(peer->ipAddr).append(" has disconnected"));

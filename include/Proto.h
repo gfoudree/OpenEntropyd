@@ -1,10 +1,15 @@
 #ifndef PROTO_H
 #define PROTO_H
 
+#define MIN_ENT_SZ 16
+#define MAX_ENT_SZ 256
+
 #define ID_GET_ENTROPY 1
 #define ID_RECV_ENTROPY 2
-#define SRV_HELO 0xFF
-#define CLI_HELO 0xF0
+#define ID_INVALID_REQUEST 3
+#define ID_HELO 4
+#define ID_BYE 5
+
 #define PRIORITY0 0
 #define PRIORITY1 1
 #define PRIORITY2 2
@@ -13,6 +18,7 @@
 
 #define PSK "TESTPSK" //TODO: Make this changed for production
 #define HMAC_LEN 384/8
+#define ERPKT 306
 
 #include <openssl/hmac.h>
 #include <memory>
@@ -20,8 +26,8 @@
 #include <iostream>
 
 struct proto {
-  uint8_t data_id;                  //Type of request
-  unsigned char data[306];          //Data block, cast to appropriate struct. 258 because entropy_reply = (1b+1b+256b+48b -> 306b);
+  uint8_t data_id;                    //Type of request
+  unsigned char data[ERPKT];          //Data block, cast to appropriate struct. 306 because entropy_reply = (1b+1b+256b+48b -> 306b);
 };
 
 struct entropy_request {

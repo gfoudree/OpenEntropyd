@@ -31,9 +31,18 @@ void TLSPeer::parseX509Cert() {
     }
 }
 
-void TLSPeer::sendData(const void *data, unsigned int len) {
+bool TLSPeer::sendData(const void *data, unsigned int len) {
   if (SSL_write(ssl, data, len) < 1) {
     ERR_print_errors_fp(stderr);
     Logger<const char*>::logToFile("Error writing data to server");
+    return false;
   }
+  return true;
 }
+
+bool TLSPeer::sendControlMsg(const unsigned int id) {
+	proto p;
+	p.data_id = id;
+	return this->sendData((void*)&p, sizeof(proto));
+}
+

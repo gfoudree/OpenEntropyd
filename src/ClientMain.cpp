@@ -15,9 +15,7 @@ int main() {
     er.id = 3;
     req.data_id = ID_GET_ENTROPY;
     memcpy(req.data, &er, sizeof(er));
-
     tc.sendData(&req, sizeof(req));
-
   }
   catch (const char *err) {
       Logger<const char*>::logToFile(err);

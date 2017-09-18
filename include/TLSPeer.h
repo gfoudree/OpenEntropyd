@@ -22,6 +22,7 @@
 #include <memory>
 #include <sstream>
 #include "Logger.h"
+#include "Proto.h"
 
 typedef struct X509_Cert_Info {
     std::unique_ptr<char *> subj, issuer;
@@ -38,7 +39,8 @@ public:
 
     void parseX509Cert();
 
-    void sendData(const void *data, unsigned int len);
+    bool sendData(const void *data, unsigned int len);
+    bool sendControlMsg(const unsigned int id);
 
     std::unique_ptr<unsigned char[]> recvData(int *readLen);
 
